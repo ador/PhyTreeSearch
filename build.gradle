@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+
+
+test {
+    testLogging.showStandardStreams = true
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+  testCompile 'junit:junit:4.11'
+  compile 'commons-configuration:commons-configuration:1.9'
+}
+
+task(runSimple, dependsOn: 'classes', type: JavaExec) {
+  main = 'hu.sztaki.phytree.Main'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+task copyToLib(type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
