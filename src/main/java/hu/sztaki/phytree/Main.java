@@ -197,6 +197,30 @@ public class Main {
 
   }
 
+  /*
+  private void searchSubtrees() {
+    String treeFileName;
+    String fastaFileName;
+    
+    for (all file pairs) {
+      readTree(treeFileName);
+      readFasta(fastaFileName);
+      doSearchSubtrees(treeFileName);
+    }
+  }
+  
+  public static void main(String[] args) {
+    if (args.length == 1) {
+      Main m = new Main(args[0]);
+      m.readConfig();
+      m.searchSubtrees();
+    } else {
+      System.out.println("Expecting 1 arguments: propertiesFile");
+      return;
+    }
+  }
+*/
+
   public static void main(String[] args) {
     Main m = new Main();
     if (args.length == 3) {
