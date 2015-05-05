@@ -27,7 +27,6 @@ public class SeqsToTreeNodes {
       //TreeNode tn = tree.getNodeByName(name.substring(1));
       if (tn != null) {
         tn.setSequence(fi);
-        tn.setHasPattern(fi.getSequenceString().contains("HD"));
       } else {
         System.err.println("Warning : no node found for this sequence: " + fi.getHeaderRow());
       }

@@ -177,6 +177,7 @@ public class Main {
       m.searchSubtrees();
     } else {
       System.out.println("Expecting 1 arguments: propertiesFile");
+      System.out.println("Found args: " + args.length);
       return;
     }
   }
