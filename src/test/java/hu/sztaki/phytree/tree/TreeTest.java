@@ -128,19 +128,5 @@ public class TreeTest {
     System.out.println(tree.getNewick(true));
     assertEquals(expected, tree.getNewick(true));
   }
-  
-  @Test
-  public void testRename() {
-    StringBuilder buffer = new StringBuilder();
-    String orig = "(sp|ABCD|1|12:0.1,sp|ABCD|0|23:0.2,(sp|AAA|2|23:0.3,sp|BBBB|0|2:0.4)sp|DA|0|43:0.5)sp|GGG|6|24;";
-    buffer.append(orig).append("\n");
-    BufferedReader br = new BufferedReader(new StringReader(buffer.toString()));
-    TreeParser parser = new TreeParser(br);
-    Tree tree = parser.tokenize();
-    tree.getRoot().renameFromLongToSimple();
-    String expected = "(ABCD_1:0.1,ABCD_0:0.2,(AAA_2:0.3,BBBB_0:0.4)DA_0:0.5)GGG_6;";
-    assertEquals(expected, tree.getNewick(false));
-    //System.out.println(orig);
-  }
 
 }

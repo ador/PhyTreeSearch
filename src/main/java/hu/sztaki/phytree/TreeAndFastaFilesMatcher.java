@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hu.sztaki.fileops.FileNumber;
-import hu.sztaki.phytree.io.DisorderPredictionsReader;
 import hu.sztaki.phytree.io.FastaReader;
 import hu.sztaki.phytree.io.FastaWriter;
 import hu.sztaki.phytree.tree.SeqsToTreeNodes;

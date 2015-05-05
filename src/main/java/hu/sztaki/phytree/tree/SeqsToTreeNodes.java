@@ -21,10 +21,8 @@ public class SeqsToTreeNodes {
     for (FastaItem fi : fastaItems) {
       String name = fi.getAcNum();
       String fragmentNum = fi.getFragId();
-      //TreeNode tn = tree.getNodeByName(name);
-      //System.out.println("searching for: " + name + "_" + fragmentNum);
-      TreeNode tn = tree.getNodeByName(name + "_" + fragmentNum);
-      //TreeNode tn = tree.getNodeByName(name.substring(1));
+      String header = fi.getHeaderRow();      
+      TreeNode tn = tree.getNodeByName(header.substring(1).trim());
       if (tn != null) {
         tn.setSequence(fi);
       } else {

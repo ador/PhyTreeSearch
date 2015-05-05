@@ -18,29 +18,29 @@ import org.junit.Test;
 
 public class SeqsToTreeNodesTest {
 
-  String fastaString = ">sp|Alma-NO|blabla\n" + 
+  String fastaString = "> Alma-NO|blab\n" + 
   		"TRHHHHTTTRRTDDDHHHHR\n" + 
-  		">sp|Korte-3|bla\n" + 
+  		"> Korte-3|bla\n" + 
   		"TRHHHHTTTRRTDDHDHDHD\n" + 
-  		">sp|Szilva-NO|1\n" + 
+  		"> Szilva-NO|1\n" + 
   		"TRHHHHTTTRRTDDDHHHHRAAAA\n" + 
-  		">sp|Barack-1|2\n" + 
+  		"> Barack-1|2\n" + 
   		"HDTRHHHHTTTRRTDRAAAA\n" + 
-  		">sp|Barack-2|3\n" + 
+  		"> Barack-2|3\n" + 
   		"TAARHDHHHTAAATTRRTDDHDAA\n" + 
-  		">sp|Korte-2|3\n" + 
+  		"> Korte-2|3\n" + 
   		"TRHDHHHTTTRRTDDHDHAACCAAAA\n" + 
-  		">sp|Barack-NO|1\n" + 
+  		"> Barack-NO|1\n" + 
   		"TRHAAHTTTRRTDDAAHHHRAAAA\n" + 
-  		">sp|Alma-2|0\n" + 
+  		"> Alma-2|0\n" + 
   		"TRHDHHHTTTRRTDDHDHAACCAAAA\n" + 
-  		">sp|Alma-1|0|blabla\n" + 
+  		"> Alma-1|0|b\n" + 
   		"AATRHHHAHAHATTTRRTDDHDHAACCDC\n" + 
-  		">sp|Alma-3|3|blabla\n" + 
+  		"> Alma-3|3|a\n" + 
   		"AATRHDHHAHAHDATTTRRTDDHDHAACCDC";
   InputStream fasta;
   FastaReader fastaReader;
-  String treeString = "(((Korte-3_bla,Korte-2_3),((Alma-NO_blabla,Alma-1_0),(Alma-2_0,Alma-3_3))),((Barack-1_2,(Barack-NO_1,Barack-2_3)),Szilva-NO_1));";
+  String treeString = "(((Korte-3|bla,Korte-2|3),((Alma-NO|blab,Alma-1|0|b),(Alma-2|0,Alma-3|3|a))),((Barack-1|2,(Barack-NO|1,Barack-2|3)),Szilva-NO|1));";
   TreeParser treeParser;
   Tree tree;
   
@@ -74,11 +74,11 @@ public class SeqsToTreeNodesTest {
     Tree modifiedTree = sttn.appendSeqsToNodes();
     assertNotNull(modifiedTree);
     // check some nodes
-    TreeNode tnAlma1 = modifiedTree.getNodeByName("Alma-1_0");
+    TreeNode tnAlma1 = modifiedTree.getNodeByName("Alma-1|0|b");
     String almaSeq1 = tnAlma1.getSeqString();
     assertEquals("AATRHHHAHAHATTTRRTDDHDHAACCDC", almaSeq1);
 
-    TreeNode tnSzilva0 = modifiedTree.getNodeByName("Szilva-NO_1");
+    TreeNode tnSzilva0 = modifiedTree.getNodeByName("Szilva-NO|1");
     String szilvaSeq0 = tnSzilva0.getSeqString();
     assertEquals("TRHHHHTTTRRTDDDHHHHRAAAA", szilvaSeq0);
     

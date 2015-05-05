@@ -28,18 +28,19 @@ public class FastaReader {
     while ((line = reader.readLine()) != null) {
       if (line.charAt(0) == '>' && counter == 0) {
         headerRow = line;
-        String[] fields = line.split("\\|"); 
-        acNum = fields[1].trim();
-        fragId = fields[2].trim();
+        String[] fields = headerRow.split("\\|"); 
+        acNum = fields[0].substring(1).trim(); // cut > from the beginning
+        fragId = fields[1].trim();
         //System.out.println("AC num: " + acNum);
         fastaItem = new FastaItem(headerRow, acNum, fragId);
         ++counter;
       }
       else if(line.charAt(0) != '>' && counter == 0) {
         headerRow = nextHeaderRow;
-        String[] fields = headerRow.split("\\|"); 
-        acNum = fields[1].trim();
-        fragId = fields[2].trim();
+        String[] fields = headerRow.split("\\|");
+        acNum = fields[0].substring(1).trim();
+        fragId = fields[1].trim();
+        //System.out.println("AC num: " + acNum);
         fastaItem = new FastaItem(headerRow, acNum, fragId);
         fastaItem.addSeqRow(line);
         ++counter;

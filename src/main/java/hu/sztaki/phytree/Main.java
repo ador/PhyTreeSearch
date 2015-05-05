@@ -1,7 +1,6 @@
 package hu.sztaki.phytree;
 
 import hu.sztaki.fileops.FileNumber;
-import hu.sztaki.phytree.io.DisorderPredictionsReader;
 import hu.sztaki.phytree.io.FastaReader;
 import hu.sztaki.phytree.io.FastaWriter;
 import hu.sztaki.phytree.tree.SeqsToTreeNodes;
@@ -32,11 +31,6 @@ public class Main {
   boolean treeColors = true;
   boolean intoFile = false;
   String pattern;
-  int minDisorderedPatterns = 1;
-  boolean fastaOutputForBlast = false;
-  boolean disorderedPredictions = false;
-  InputStream disorderedInfoStream;
-  double minDistInTree = 0.05;
   String treeDir;
   String fastaDir;
 
@@ -73,11 +67,6 @@ public class Main {
                 "with the \"seqPattern\" property!");
         return;
       }
-
-      if (config.containsKey("renameSeqs")) {
-        renameTreeSeqs = true;
-      }
-
       if (config.containsKey("treeColors")) {
         if (config.getString("treeColors").toLowerCase().equals("no")) {
           treeColors = false;
@@ -89,19 +78,7 @@ public class Main {
           && !config.getString("intoFile").toLowerCase().equals("no")) {
         intoFile = true;
       }
-      if (config.containsKey("disorderedPredictions")) {
-        disorderedPredictions = true;
-        disorderedInfoStream = new FileInputStream(new File(
-            config.getString("disorderedPredictions")));
-      }
-      if (config.containsKey("fastaOutputForBlast")
-          && !config.getString("fastaOutputForBlast").toLowerCase().equals("no")) {
-        fastaOutputForBlast = true;
-      }
-      if (config.containsKey("minDistInTreeForBlast")) {
-        minDistInTree = config.getDouble("minDistInTreeForBlast");
-      }
-    } catch (ConfigurationException | FileNotFoundException e) {
+    } catch (ConfigurationException e) {
       e.printStackTrace();
     }
   }
@@ -122,12 +99,6 @@ public class Main {
       List<FastaItem> fastaResult = ts.getFastaResult(result);
       fastaWriter.writeOrderedFastaList(fastaResult , config.getString("seqPattern"));
       
-      OutputStream outputOrFile = new FileOutputStream(
-          "sub" + number + "tree" + counter + ".txt");
-      outputOrFile.write((ts.getOrStringResult(result, config.getString("seqPattern"))+ "\n").getBytes("UTF-8"));
-      outputOrFile.flush();
-      outputOrFile.close();
-      
       System.out.println("sub" + number + "tree" + counter + ".nwk");
       System.out.println(lineSep);
     } else {
@@ -135,14 +106,6 @@ public class Main {
       System.out.println(lineSep);
     }
     
-    if (fastaOutputForBlast) {
-      OutputStream outputBlastFile = new FileOutputStream(
-          "sub" + number + "tree" + counter + ".bfasta");
-      outputBlastFile.write(result.getBlastFastaString(config.getString("seqPattern"),
-          minDistInTree).getBytes("UTF-8"));
-      outputBlastFile.flush();
-      outputBlastFile.close();
-    } 
   }
   
   private void doSearchSubtrees(Tree tree) {

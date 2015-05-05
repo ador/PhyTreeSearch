@@ -17,7 +17,7 @@ import org.junit.Test;
 
 public class FastaReaderTest {
 
-  private final String oneShortItem1 = ">sp|Q6GZX4|001R_FRG3G Putative "
+  private final String oneShortItem1 = "> Q6GZX4|001R_FRG3G Putative "
       + "transcription factor 001R OS=Frog virus 3 (isolate Goorha) "
       + "GN=FV3-001R PE=4 SV=1\n"
       + "MAFSAEDVLKEYDRRRRMEALLLSLYYPNDRKLLDYKEWSPPRVQVECPKAPVEWNNPPS\n"
@@ -26,7 +26,7 @@ public class FastaReaderTest {
       + "EKDLVKDFKALVESAHRMRQGHMINVKYILYQLLKKHGHGPDGPDILTVKTGSKGVLYDD\n"
       + "SFRKIYTDLGWKFTP\n";
 
-  private final String oneShortItem2 = ">sp|Q6GZX3|001R_FRG3G Putative "
+  private final String oneShortItem2 = "> Q6GZX3|001R_FRG3G Putative "
       + "transcription factor 001R OS=Frog virus 3 (isolate Goorha) "
       + "GN=FV3-001R PE=4 SV=1\n"
       + "MSIIGATRLQNDKSDTYSAGPCYAGGCSAFTPRGTCGKDWDLGEQTCASGFCTSQPLCAR\n"
@@ -36,7 +36,7 @@ public class FastaReaderTest {
       + "DDGSVTMDDVKNTINCDFSKYVPPPPPPKPTPPTPPTPPTPPTPPTPPTPPTPRPVHNRK\n"
       + "VMFFVAGAVLVAILISTVRW\n";
 
-  private final String oneShortItem3 = ">sp|Q197F8|002R_IIV3 Uncharacterized "
+  private final String oneShortItem3 = "> Q197F8|002R_IIV3 Uncharacterized "
       + "protein 002R OS=Invertebrate iridescent virus 3 GN=IIV3-002R "
       + "PE=4 SV=1\n"
       + "MASNTVSAQGGSNRPVRDFSNIQDVAQFLLFDPIWNEQPGSIVPWKMNREQALAERYPEL\n"
@@ -59,7 +59,7 @@ public class FastaReaderTest {
   @Test
   public void testGetNextFastaItem() {
     FastaReader fastaReader = new FastaReader(isAll);
-    String headerRow = ">sp|Q6GZX4|001R_FRG3G Putative "
+    String headerRow = "> Q6GZX4|001R_FRG3G Putative "
         + "transcription factor 001R OS=Frog virus 3 (isolate Goorha) "
         + "GN=FV3-001R PE=4 SV=1";
     String sequence = "MAFSAEDVLKEYDRRRRMEALLLSLYYPNDRKLLDYKEWSPPRVQVECPKAPVE"

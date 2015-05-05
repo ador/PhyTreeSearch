@@ -566,24 +566,6 @@ public class TreeNode {
     this.hasPattern = hasPattern;
   }
 
-  public int numOfDisorderedPatternLeaves(String pattern, double threshold) {
-    if (isLeaf()) {
-      if (sequence.hasDisorderProbs() 
-          && sequence.getSequenceString().contains(pattern)) {
-        if (sequence.hasDisorderedPattern(pattern, threshold)) {
-          return 1;
-        }
-      }
-      return 0;
-    } else {
-      int sumChildren = 0;
-      for (TreeNode n : children) {
-        sumChildren += n.numOfDisorderedPatternLeaves(pattern, threshold);
-      }
-      return sumChildren;
-    }
-  }
-  
   public String getNewickSubtree(boolean withColors) {
     if (isLeaf()) {
       String ret;
@@ -624,61 +606,6 @@ public class TreeNode {
     return set;
   }
 
-  public String getOrString(String pattern) {    
-    if (isLeaf()) {
-      if (null != pattern) {
-        if (getSeqString().contains(pattern)) {
-          return " OR " + sequence.getAcNum();
-        }
-      } else { // no pattern is set: every leaf has to be in result
-        return " OR " + sequence.getAcNum();
-      }
-    } else { // not leaf: see children
-      String ret = "";
-      for (TreeNode c : children) {
-        ret = ret + c.getOrString(pattern);
-      }
-      return ret;
-    }
-    return "";
-  }
-  
-  public void renameFromLongToSimple() {
-    String origname = new String(this.name);
-    if (!isLeaf()) {
-      for (TreeNode c: children) {
-        c.renameFromLongToSimple();
-      }
-    }
-    if (this.name.startsWith("sp") && this.name.contains("|")) {
-      String[] fields = name.split("\\|");
-      if (fields.length < 3) {
-        System.err.println("Error, unexpected name format:" + this.name);
-        System.err.println("Expecting headers like: \n >sp|<IDENTIFIER>|<IDX OF FRAGMENT>|<NOTES>");
-        return;
-      }
-      this.name = fields[1] + "_" + fields[2];
-      tree.renameNode(this, origname, this.name);
-    }
-  }
-
-  // select only leaves of this subtree that have the pattern, and are far 
-  // enough from each other
-  // required min distance is in sum of branch lengths
-  // returns a fasta formatted string
-  public String getBlastFastaString(String pattern, double minDistInTree) {
-    List<BlastFastaItem> bfiList = getBlastNodes(pattern, minDistInTree);
-    StringBuilder sb = new StringBuilder();
-    for (BlastFastaItem bfi: bfiList) {
-      sb.append(bfi.seq.getHeaderRow() + "\n");
-      for (String s : bfi.seq.getSequenceRows()) {
-        sb.append(s + "\n");
-      }
-    }
-    return sb.toString();
-  }
-  
-  
   public String drawSubtreeString(TreeNode n, int level, boolean withSeq,
       boolean withDists) {
     StringBuilder sb = new StringBuilder();
@@ -709,82 +636,5 @@ public class TreeNode {
     }
     return sb.toString();
   }
-  
-  private class BlastFastaItem {
-    public FastaItem seq;
-    public double distFromLeafNow = 0.0;
-    public BlastFastaItem(FastaItem fi, double dist) {
-      seq = fi;
-      distFromLeafNow = dist;
-    }
-  }
-  
-  public List<BlastFastaItem> getBlastNodes(String pattern, 
-      double minDistInTree) {
-    if (isLeaf()) {
-      ArrayList<BlastFastaItem> ret = new ArrayList<BlastFastaItem>();
-      if (null != pattern) {
-        if (getSeqString().contains(pattern)) {
-          ret.add(new BlastFastaItem(sequence, getDistFromParent()));
-          return ret;
-        } else {
-          // not adding this leaf, return empty list
-          return ret;
-        }
-      } else {
-        ret.add(new BlastFastaItem(sequence, getDistFromParent()));
-        return ret;
-      }
-    } else {
-      // greedy algo: start putting elements in a return list, 
-      // but check before if the new one is too close
-      // to the already added ones
-      ArrayList<BlastFastaItem> ret = new ArrayList<BlastFastaItem>();
-      for (TreeNode c : children) {
-        ArrayList<BlastFastaItem> toAdd = new ArrayList<BlastFastaItem>();
-        List<BlastFastaItem> bfiList = c.getBlastNodes(pattern, minDistInTree);
-        
-        if (ret.isEmpty()) { // these have been checked already, so add all of them
-          for (BlastFastaItem bfi : bfiList) {
-            ret.add(bfi);
-          }
-        } else {
-          // check if the new elements are far enough from all the already added ones
-          // technically need to add them to a separate list to avoid
-          // concurrent modification exception
-          for (BlastFastaItem bfiNew : bfiList) {
-            for (BlastFastaItem bfiAdded : ret) {
-              double distOfItems = bfiNew.distFromLeafNow + bfiAdded.distFromLeafNow;
-              if  (distOfItems > minDistInTree) {
-                // update new
-                
-                // then add, if not added
-                if (!toAdd.contains(bfiNew)) {
-                  toAdd.add(bfiNew);
-                }
-              }
-            }
-          }
-          ret = unifyResultsAndUpdateDists(ret, toAdd);
-          return ret;
-        }
-      }
-      return ret;
-    }
-  }
 
-  
-  private ArrayList<BlastFastaItem> unifyResultsAndUpdateDists(
-      ArrayList<BlastFastaItem> ret, ArrayList<BlastFastaItem> toAdd) {
-    // update distances
-    for (BlastFastaItem bfi: ret) {
-      bfi.distFromLeafNow = bfi.distFromLeafNow + this.getDistFromParent();
-    }
-    // update and add to final result
-    for (BlastFastaItem bfi: toAdd) {
-      bfi.distFromLeafNow = bfi.distFromLeafNow + this.getDistFromParent();
-      ret.add(bfi);
-    }
-    return ret;
-  }
 }

@@ -12,8 +12,6 @@ import org.apache.commons.configuration.Configuration;
 public class SubTreeSearch {
   Configuration conf;
   String pattern;
-  int minDisPatterns = -1;
-  double minDisThreshold = 0.5;
   
   public void setConfig(Configuration conf) {
     this.conf = conf;
@@ -34,18 +32,6 @@ public class SubTreeSearch {
     
     if (conf.containsKey("seqPattern")) {
       this.pattern = conf.getString("seqPattern");
-      if (conf.containsKey("disorderedPredictions")) {
-        if (conf.containsKey("minDisorderedPatterns")) {
-          minDisPatterns = conf.getInt("minDisorderedPatterns");
-        } else {
-          minDisPatterns = 1;
-        }
-        if (conf.containsKey("disorderedThreshold")) {
-          minDisThreshold = conf.getDouble("disorderedThreshold");
-        }
-      } else {
-        minDisPatterns = -1;
-      }
       // check pattern percents in all possible subtrees (= nodes)
       // if a node is OK then its children don't have to be checked!
       // (we need the max possible subtrees)
@@ -74,22 +60,13 @@ public class SubTreeSearch {
   
   private boolean checkNode(TreeNode node, ArrayList<TreeNode> results) {
     if (checkNumOfLeaves(node) && checkSubTreeHeight(node) &&
-        checkNodeForPattern(node) && checkDisorder(node)) {
+        checkNodeForPattern(node)) {
       results.add(node);
       return true;
     }
     return false;
   }
   
-  private boolean checkDisorder(TreeNode node) {
-    if (minDisPatterns <= 0) {
-      //not really checking anything, because this filter is optional
-      return true;
-    }
-    int num = node.numOfDisorderedPatternLeaves(pattern, minDisThreshold);
-    return (num >= minDisPatterns);
-  }
-
   private boolean checkNodeForPattern(TreeNode n) {
     int okLeaves = n.getLeafNumWithPattern(pattern);
     int allLeaves = n.getLeafNum();
@@ -131,12 +108,5 @@ public class SubTreeSearch {
     return subtreeRoot.addSubtreeFastaItemsToSet(res);
   }
 
-  public String getOrStringResult(TreeNode subtreeRoot, String pattern) {
-    if (subtreeRoot.getOrString(pattern).length() > 5) { // there are result
-      return subtreeRoot.getOrString(pattern).substring(4);
-    } else {
-      return "";
-    }
-  }
 
 }

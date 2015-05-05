@@ -11,7 +11,6 @@ public class FastaItem implements Comparable<FastaItem> {
   private List<String> sequenceRows = new ArrayList<String>();
   private String fragId;
   // contains as many numbers as total num of chars in sequendeRows
-  private List<Double> disorderProbs = null;
   private StringBuilder seqBuilder = null;
 
   public FastaItem(String header, String ac, String fragment) {
@@ -31,18 +30,6 @@ public class FastaItem implements Comparable<FastaItem> {
     this.fragId = fragId;
   }
 
-  public List<Double> getDisorderProbs() {
-    return disorderProbs;
-  }
-
-  public void setDisorderProbs(List<Double> disorderProbs) {
-    this.disorderProbs = disorderProbs;
-  }
-
-  public boolean hasDisorderProbs() {
-    return (disorderProbs != null);
-  }
-
   public String getHeaderRow() {
     return headerRow;
   }
@@ -60,11 +47,11 @@ public class FastaItem implements Comparable<FastaItem> {
   }
 
   public String getSequenceString() {
-    StringBuilder sb = new StringBuilder();
+    seqBuilder = new StringBuilder();
     for (String s : sequenceRows) {
-      sb.append(s);
+      seqBuilder.append(s);
     }
-    return sb.toString();
+    return seqBuilder.toString();
   }
   
   public List<String> getSequenceRows(){
@@ -76,38 +63,5 @@ public class FastaItem implements Comparable<FastaItem> {
     return acNum.compareTo((other).acNum);      
   }
 
-  public void addAminoAcidWithProbability(String aminoAcid, double prob) {
-    if (null == seqBuilder) {
-      seqBuilder = new StringBuilder();
-    }
-    seqBuilder.append(aminoAcid);
-    if (null == disorderProbs) {
-      disorderProbs = new ArrayList<Double>();
-    }
-    disorderProbs.add(prob);    
-  }
-
-  public void closeSeq() {
-    sequenceRows.clear();
-    sequenceRows.add(seqBuilder.toString());    
-  }
-  
-  public boolean hasDisorderedPattern(String pattern, double threshold) {
-    if (hasDisorderProbs()) {
-      String seq = getSequenceString();
-      int fromIdx = seq.indexOf(pattern);
-      if (fromIdx >= 0) {
-        // check all chars of the pattern
-        boolean okSoFar = true;
-        for (int i = 0; i < pattern.length() && okSoFar; i++) {
-          if (disorderProbs.get(fromIdx + i) < threshold) {
-            okSoFar = false;
-          }
-        }
-        return okSoFar;
-      }
-    }
-    return false;
-  }
 }
 
