@@ -27,9 +27,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 public class Main {
 
-  FastaReader fastaReader;
-  TreeParser treeParser;
-  Tree tree;
   Configuration config;
   boolean renameTreeSeqs = false;
   boolean treeColors = true;
@@ -40,6 +37,8 @@ public class Main {
   boolean disorderedPredictions = false;
   InputStream disorderedInfoStream;
   double minDistInTree = 0.05;
+  String treeDir;
+  String fastaDir;
 
 
   private boolean checkRequiredConfigPropertiesExist() {
@@ -48,12 +47,16 @@ public class Main {
           .println("Please specify a directory with .nwk tree files " +
               "with the \"treeFilesDir\" property!");
       return false;
+    } else {
+      this.treeDir = config.getString("treeFilesDir");
     }
     if (!config.containsKey("fastaFilesDir")) {
       System.out
           .println("Please specify a directory with .fasta files " +
               "with the \"fastaFilesDir\" property!");    
       return false;
+    } else {
+      this.fastaDir = config.getString("fastaFilesDir");
     }
     return true;
   }
@@ -103,31 +106,6 @@ public class Main {
     }
   }
 
-  private void readFasta(String fastaFileName) {
-    try {
-      InputStream fasta;
-      fasta = new FileInputStream(new File(fastaFileName));
-      fastaReader = new FastaReader(fasta);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void readTree(String newickFileName) {
-    BufferedReader br;
-    try {
-      br = new BufferedReader(new FileReader(newickFileName));
-      treeParser = new TreeParser(br);
-      tree = treeParser.tokenize();
-      if (renameTreeSeqs) {
-        System.out.println("Renaming leaves..."); 
-        tree.getRoot().renameFromLongToSimple();
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    }
-  }
-
   private void outputResultSubTrees(TreeNode result, int number, int counter,
       SubTreeSearch ts) throws UnsupportedEncodingException, IOException {
     String lineSep = "------------------";
@@ -167,65 +145,29 @@ public class Main {
     } 
   }
   
-  private void doSearchSubtrees(String treeFileName) {
-    SeqsToTreeNodes sqtn = new SeqsToTreeNodes();
-    sqtn.setTree(tree);
-    List<FastaItem> fastaItemList = new ArrayList<FastaItem>();
-    try {
-      FastaItem fastaItem = fastaReader.getNextFastaItem();
-
-      while (fastaItem != null) {
-        fastaItemList.add(fastaItem);
-        fastaItem = fastaReader.getNextFastaItem();
-      }
-      sqtn.setFastaItems(fastaItemList);
-      tree = sqtn.appendSeqsToNodes();
-
-      if (disorderedPredictions) {
-        List<FastaItem> disorderedFastaItemList = new ArrayList<FastaItem>();
-        DisorderPredictionsReader disorderReader =
-            new DisorderPredictionsReader(disorderedInfoStream);
-        FastaItem disordFastaItem = disorderReader.getNextFastaItem();
-        while (disordFastaItem != null) {
-          disorderedFastaItemList.add(disordFastaItem);
-          disordFastaItem = disorderReader.getNextFastaItem();
-        }
-        SeqsToTreeNodes sqtn2 = new SeqsToTreeNodes();
-        sqtn2.setTree(tree);
-        sqtn2.setFastaItems(disorderedFastaItemList);
-        // replace FastaItems of leaves that have disorder predictions
-        System.out.println("Appending disorder info to tree...");
-        tree = sqtn2.appendSeqsToNodes();
-      }
-
+  private void doSearchSubtrees(Tree tree) {
+    try{
       SubTreeSearch ts = new SubTreeSearch();
       ts.setConfig(config);
       List<TreeNode> results = ts.findSubtrees(tree);
       System.out.println("Number of result subtrees:" + results.size() + "\n");
       int counter = 0;
-
-      FileNumber fileN = new FileNumber(treeFileName);
-      int number = fileN.getNumber();
+      int treeId = tree.getKey();
       for (TreeNode res : results) {
-        outputResultSubTrees(res, number, counter, ts);
+        outputResultSubTrees(res, treeId, counter, ts);
         counter++;
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
-
   }
-
+  
   private void searchSubtrees() {
-    // TODO
-    String treeFileName;
-    String fastaFileName;
-    
-    //for (all file pairs) {
-      readTree(treeFileName);
-      readFasta(fastaFileName);
-      doSearchSubtrees(treeFileName);
-    //}
+    TreeAndFastaFilesMatcher filesMatcher = new TreeAndFastaFilesMatcher(treeDir, fastaDir);
+    List<Tree> treeList = filesMatcher.getTreesWithSequences();
+    for (Tree tree : treeList) {
+      doSearchSubtrees(tree);
+    }
   }
   
   public static void main(String[] args) {
