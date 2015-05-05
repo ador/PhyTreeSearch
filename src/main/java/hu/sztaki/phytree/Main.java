@@ -42,9 +42,28 @@ public class Main {
   double minDistInTree = 0.05;
 
 
+  private boolean checkRequiredConfigPropertiesExist() {
+    if (!config.containsKey("treeFilesDir")) {
+      System.out
+          .println("Please specify a directory with .nwk tree files " +
+              "with the \"treeFilesDir\" property!");
+      return false;
+    }
+    if (!config.containsKey("fastaFilesDir")) {
+      System.out
+          .println("Please specify a directory with .fasta files " +
+              "with the \"fastaFilesDir\" property!");    
+      return false;
+    }
+    return true;
+  }
+  
   private void readConfig(String configFileName) {
     try {
       config = new PropertiesConfiguration(configFileName);
+      if (!checkRequiredConfigPropertiesExist()) {
+        System.exit(3);
+      }
       if (!config.containsKey("seqPattern")) {
         System.out
             .println("Please specify a pattern to search for in sequences " +
@@ -197,42 +216,26 @@ public class Main {
 
   }
 
-  /*
   private void searchSubtrees() {
+    // TODO
     String treeFileName;
     String fastaFileName;
     
-    for (all file pairs) {
+    //for (all file pairs) {
       readTree(treeFileName);
       readFasta(fastaFileName);
       doSearchSubtrees(treeFileName);
-    }
+    //}
   }
   
   public static void main(String[] args) {
     if (args.length == 1) {
-      Main m = new Main(args[0]);
-      m.readConfig();
+      Main m = new Main();
+      m.readConfig(args[0]);
       m.searchSubtrees();
     } else {
       System.out.println("Expecting 1 arguments: propertiesFile");
       return;
     }
   }
-*/
-
-  public static void main(String[] args) {
-    Main m = new Main();
-    if (args.length == 3) {
-      m.readConfig(args[0]);
-      m.readTree(args[1]);
-      m.readFasta(args[2]);
-      m.doSearchSubtrees(args[1]);
-    } else {
-      System.out.println("Expecting 3 arguments: propertiesFile " +
-          "treeFile(newick) fastaFile ");
-      return;
-    }
-  }
-
 }
