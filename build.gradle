@@ -1,7 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'application'
 
 
+mainClassName = "hu.sztaki.phytree.Main"
 
 test {
     testLogging.showStandardStreams = true
@@ -11,6 +13,9 @@ repositories {
     mavenCentral()
 }
 
+jar {
+
+}
 
 dependencies {
   testCompile 'junit:junit:4.11'
@@ -25,5 +30,24 @@ task(runSimple, dependsOn: 'classes', type: JavaExec) {
 task copyToLib(type: Copy) {
     into "$buildDir/output/lib"
     from configurations.runtime
+}
+
+jar {
+
+  manifest {
+    attributes("Implementation-Title": "PhyTreeSearch",
+      "Implementation-Version": 0.8,
+      "Main-Class": "hu.sztaki.phytree.Main")
+  }
+  dependsOn configurations.runtime
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
 }
 
