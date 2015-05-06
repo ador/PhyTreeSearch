@@ -29,7 +29,7 @@ public class Main {
   Configuration config;
   boolean renameTreeSeqs = false;
   boolean treeColors = true;
-  boolean intoFile = false;
+  String outDirPath;
   String pattern;
   String treeDir;
   String fastaDir;
@@ -52,6 +52,12 @@ public class Main {
     } else {
       this.fastaDir = config.getString("fastaFilesDir");
     }
+    if (!config.containsKey("outputTreeFilesDir")) {
+      System.out
+          .println("Please specify output directory for results " +
+              "with the \"outputTreeFilesDir\" property!");
+      return false;
+    }
     return true;
   }
   
@@ -73,64 +79,71 @@ public class Main {
           System.out.println("Output tree coloring is turned OFF");
         }
       }
-
-      if (config.containsKey("intoFile")
-          && !config.getString("intoFile").toLowerCase().equals("no")) {
-        intoFile = true;
-      }
+      outDirPath = config.getString("outputTreeFilesDir");
+      
     } catch (ConfigurationException e) {
       e.printStackTrace();
     }
   }
 
   private void outputResultSubTrees(TreeNode result, int number, int counter,
-      SubTreeSearch ts) throws UnsupportedEncodingException, IOException {
-    String lineSep = "------------------";
-    if (intoFile) {
-      String subtree = "(" + result.getNewickSubtree(treeColors) + ");";
-      OutputStream outputTree = new FileOutputStream("sub" + number + 
-          "tree" + counter + ".nwk");
-      outputTree.write(subtree.getBytes("UTF-8"));
-      outputTree.flush();
-      outputTree.close();
-      FastaWriter fastaWriter = new FastaWriter(new FileOutputStream("sub" +
-          number + "tree" + counter + ".fasta"));
-
-      List<FastaItem> fastaResult = ts.getFastaResult(result);
-      fastaWriter.writeOrderedFastaList(fastaResult , config.getString("seqPattern"));
-      
-      System.out.println("sub" + number + "tree" + counter + ".nwk");
-      System.out.println(lineSep);
-    } else {
-      System.out.println("(" + result.getNewickSubtree(treeColors) + ");");
-      System.out.println(lineSep);
-    }
+    SubTreeSearch ts) throws UnsupportedEncodingException, IOException {
+  
+    File targetFile = new File(outDirPath); 
+    targetFile.mkdirs();
     
+    String subtree = "(" + result.getNewickSubtree(treeColors) + ");";
+    String resultFileName = outDirPath + File.separator + "sub" + number + "tree" + counter;
+
+    OutputStream outputTree = new FileOutputStream(resultFileName + ".nwk");
+    outputTree.write(subtree.getBytes("UTF-8"));
+    outputTree.flush();
+    outputTree.close();
+    FastaWriter fastaWriter = new FastaWriter(new FileOutputStream(resultFileName + ".fasta"));
+
+    List<FastaItem> fastaResult = ts.getFastaResult(result);
+    fastaWriter.writeOrderedFastaList(fastaResult , config.getString("seqPattern"));      
+    System.out.println("Written: " + resultFileName + ".nwk and .fasta\n");
   }
   
-  private void doSearchSubtrees(Tree tree) {
-    try{
+  private int[] doSearchSubtrees(Tree tree) {
+    int allNodeCnt = 0;
+    int patternNodeCnt = 0;
+    try {
       SubTreeSearch ts = new SubTreeSearch();
       ts.setConfig(config);
       List<TreeNode> results = ts.findSubtrees(tree);
-      System.out.println("Number of result subtrees:" + results.size() + "\n");
-      int counter = 0;
-      int treeId = tree.getKey();
-      for (TreeNode res : results) {
-        outputResultSubTrees(res, treeId, counter, ts);
-        counter++;
+      if (results.size() > 0) {
+        int treeId = tree.getKey();
+        System.out.println("Number of result subtrees for input tree :" + 
+              treeId + " is " + results.size());
+        int counter = 0;
+        for (TreeNode res : results) {
+          outputResultSubTrees(res, treeId, counter, ts);
+          counter++;
+          patternNodeCnt += res.getLeafNumWithPattern("HD");
+          allNodeCnt += res.getLeafNum();
+        }
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
+    int[] ret = {allNodeCnt, patternNodeCnt};
+    return ret; 
   }
   
   private void searchSubtrees() {
     TreeAndFastaFilesMatcher filesMatcher = new TreeAndFastaFilesMatcher(treeDir, fastaDir);
     List<Tree> treeList = filesMatcher.getTreesWithSequences();
+    int allNodes = 0;
+    int patternNodes = 0;
     for (Tree tree : treeList) {
-      doSearchSubtrees(tree);
+      int[] nums = doSearchSubtrees(tree);
+      allNodes += nums[0];
+      patternNodes += nums[1];
     }
+    System.out.println("All nodes found in all subtrees: " + allNodes + " of which " +
+        patternNodes + " contain the required pattern");
   }
   
   public static void main(String[] args) {
