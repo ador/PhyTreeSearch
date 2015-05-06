@@ -12,6 +12,7 @@ import org.apache.commons.configuration.Configuration;
 public class SubTreeSearch {
   Configuration conf;
   String pattern;
+  static final int DEFAULT_MIN_PATTERN_PERCENT = 50;
   
   public void setConfig(Configuration conf) {
     this.conf = conf;
@@ -61,6 +62,7 @@ public class SubTreeSearch {
   private boolean checkNode(TreeNode node, ArrayList<TreeNode> results) {
     if (checkNumOfLeaves(node) && checkSubTreeHeight(node) &&
         checkNodeForPattern(node)) {
+      setHasPatternForLeaves(node);
       results.add(node);
       return true;
     }
@@ -71,7 +73,7 @@ public class SubTreeSearch {
     int okLeaves = n.getLeafNumWithPattern(pattern);
     int allLeaves = n.getLeafNum();
     double percent = 1.0 * okLeaves / allLeaves;
-    int minPattPercent = 50;
+    int minPattPercent = DEFAULT_MIN_PATTERN_PERCENT;
     if (conf.containsKey("minPatternPercent")) {
       minPattPercent = conf.getInt("minPatternPercent");
       minPattPercent = Math.min(minPattPercent, 100);
@@ -81,6 +83,17 @@ public class SubTreeSearch {
       return true;
     }
     return false;
+  }
+  
+  private void setHasPatternForLeaves(TreeNode n) {
+    if (n.isLeaf() &&  n.getSeqString().contains(pattern)) {
+      n.setHasPattern(true);
+    }
+    if (! n.isLeaf()) {
+      for (TreeNode child: n.getChildren()) {
+        setHasPatternForLeaves(child);
+      }
+    }
   }
 
   private boolean checkNumOfLeaves(TreeNode treeNode) {
