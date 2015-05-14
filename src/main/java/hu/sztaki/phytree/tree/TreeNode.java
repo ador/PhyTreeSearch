@@ -46,7 +46,7 @@ import java.util.*;
  * A TreeNode has a list of children, a unique key, a leftmostleaf and a
  * rightmost leaf
  * 
- * @author Tamara Munzner, Li Zhang, Yunhong Zhou
+ * @author Tamara Munzner, Li Zhang, Yunhong Zhou, + modifications, new functions: Adrienn Szabo
  * @version 2.2
  * @see Tree
  * @see GridCell

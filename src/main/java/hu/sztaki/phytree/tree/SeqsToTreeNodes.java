@@ -4,6 +4,13 @@ import hu.sztaki.phytree.FastaItem;
 
 import java.util.List;
 
+/**
+ * A class that attaches a FastaItem (containing sequence string) to nodes
+ * of a (phylognenetic) tree. 
+ * 
+ * @author Adrienn Szabo
+ * @version 0.9
+ */
 public class SeqsToTreeNodes {
 
   Tree tree;
