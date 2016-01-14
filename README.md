@@ -14,5 +14,7 @@ Then you can build with:
 
 ### How to use
 
-Run the rinExample.sh script. 
+Run the runExample.sh script.
+
+TODO
 
