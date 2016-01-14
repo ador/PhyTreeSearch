@@ -14,5 +14,5 @@ Then you can build with:
 
 ### How to use
 
-TODO
+Run the rinExample.sh script. 
 
