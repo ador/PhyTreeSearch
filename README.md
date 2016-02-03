@@ -34,6 +34,7 @@ Then you can build with:
 
 ### How to use
 
-Examine and run the runExample.sh script.
+Just call the compiled java code, and a pass it a properties file with your parameters and file paths.
+For an example, see the 'runExample.sh' script.
 
 
